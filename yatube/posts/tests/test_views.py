@@ -483,10 +483,10 @@ class FollowViewsTest(TestCase):
         author_posts = Post.objects.filter(author=FollowViewsTest.vasia_author)
         for post in author_posts:
             self.assertIn(post, post_list_followed)
-        
+
         authors = Follow.objects.filter(user=FollowViewsTest.user_not_follower)
         post_list_followed = Post.objects.filter(
             author__in=[author.author for author in authors])
         author_posts = Post.objects.filter(author=FollowViewsTest.vasia_author)
         for post in author_posts:
-            self.assertNotIn(post, post_list_followed)        
+            self.assertNotIn(post, post_list_followed)
