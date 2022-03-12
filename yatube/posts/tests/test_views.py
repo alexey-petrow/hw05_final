@@ -383,7 +383,7 @@ class CommentsViewsTest(TestCase):
         form_data = {
             'text': 'Тестовый комментарий',
         }
-        response = self.client.post(
+        self.client.post(
             reverse(
                 'posts:add_comment',
                 kwargs={'post_id': CommentsViewsTest.post.id}
@@ -398,7 +398,7 @@ class CommentsViewsTest(TestCase):
         form_data = {
             'text': 'Тестовый комментарий',
         }
-        response = self.authorized_author.post(
+        self.authorized_author.post(
             reverse(
                 'posts:add_comment',
                 kwargs={'post_id': CommentsViewsTest.post.id}
@@ -432,7 +432,8 @@ class FollowViewsTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user_follower = User.objects.create_user(username='user_follower')
-        cls.user_not_follower = User.objects.create_user(username='user_not_follower')
+        cls.user_not_follower = User.objects.create_user(
+            username='user_not_follower')
         cls.vasia_author = User.objects.create_user(username='vasia_author')
         cls.group = Group.objects.create(
             title='Тестовая группа',
@@ -448,30 +449,30 @@ class FollowViewsTest(TestCase):
     def setUp(self):
         self.authorized_author = Client()
         self.authorized_author.force_login(FollowViewsTest.user_follower)
-    
+
     def test_follow(self):
         """Тест подписки и отписки от автора"""
         new_follow = Follow.objects.create(
             user=FollowViewsTest.user_follower,
-            author = FollowViewsTest.vasia_author,
+            author=FollowViewsTest.vasia_author,
         )
         authors = Follow.objects.filter(user=FollowViewsTest.user_follower)
         authors_list = [author.author for author in authors]
         self.assertIn(FollowViewsTest.vasia_author, authors_list)
-        
+
         new_follow.delete()
         authors = Follow.objects.filter(user=FollowViewsTest.user_follower)
         authors_list = [author.author for author in authors]
         self.assertNotIn(FollowViewsTest.vasia_author, authors_list)
-    
+
     def test_follower_has_posts_he_followed(self):
         """Тест: новая запись появляется в ленте тех, кто на него подписан
         и не появляется в ленте тех, кто не подписан."""
-        new_follow = Follow.objects.create(
+        Follow.objects.create(
             user=FollowViewsTest.user_follower,
-            author = FollowViewsTest.vasia_author,
+            author=FollowViewsTest.vasia_author,
         )
-        new_post = Post.objects.create(
+        Post.objects.create(
             author=FollowViewsTest.vasia_author,
             group=FollowViewsTest.group,
             text='Text2',

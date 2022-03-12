@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render, get_object_or_404, get_list_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from .models import Post, Group, User, Comment, Follow
@@ -39,7 +39,8 @@ def profile(request, username):
     if request.user.username:
         user = get_object_or_404(User, username=request.user.username)
         user_follows = Follow.objects.filter(user=request.user)
-        authors_followed_list = [author_followed.author for author_followed in user_follows]
+        authors_followed_list = [
+            author_followed.author for author_followed in user_follows]
         if author in authors_followed_list:
             following = True
         else:
@@ -156,7 +157,7 @@ def profile_follow(request, username):
         authors = Follow.objects.filter(user=request.user)
         follow_list = [follow_author.author for follow_author in authors]
         if author not in follow_list:
-            new_follow = Follow.objects.create(
+            Follow.objects.create(
                 user=request.user,
                 author=author,
             )
