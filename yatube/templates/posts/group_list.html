@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block head_title %}
+  {{ group }}
+{% endblock head_title %}
+{% block title %}
+  <h1>{{ group }}</h1>
+{% endblock title %}
+{% block content %}
+  <p>
+    {{ group.description }}
+  </p>
+  {% for post in page_obj %}
+    <article>
+      <ul>
+        <li>
+          Автор: 
+          <a href="{% url 'posts:profile' post.author %}">  
+            {{ post.author.get_full_name }}
+          </a>
+        </li>
+        <li>
+          Дата публикации: {{ post.pub_date|date:"d E Y"}}
+        </li>
+      </ul>
+      {% include 'posts/includes/add_picture.html' %}
+      <p>
+        {{ post.text }}
+      </p>
+    </article>
+    {% if not forloop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+  {% include 'posts/includes/paginator.html' %}
+{% endblock content %}
+        
