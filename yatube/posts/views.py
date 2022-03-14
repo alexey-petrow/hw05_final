@@ -38,6 +38,8 @@ def profile(request, username):
     page_obj = add_paginator(post_list, request)
     following = False
     if request.user.is_authenticated:
+        # Тут я не понимаю почему переменная лишняя,
+        # ведь она используется в if
         is_you_follow = Follow.objects.filter(
             user=request.user).filter(author=author).exists()
         if is_you_follow:
@@ -133,7 +135,7 @@ def follow_index(request):
     template = 'posts/follow.html/'
     title = f"Подписки пользователя {request.user.username}"
     post_list = Post.objects.filter(
-        author__following__user=request.user).all()
+        author__following__user=request.user)
     page_obj = add_paginator(post_list, request)
     context = {
         'title': title,

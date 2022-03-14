@@ -445,23 +445,16 @@ class FollowViewsTest(TestCase):
         self.authorized_author.force_login(FollowViewsTest.user_follower)
 
     def test_follow(self):
-        """Тест подписки и отписки от автора"""
+        """Тест подписки на автора"""
         form_data = {
             'user': FollowViewsTest.user_follower,
             'author': FollowViewsTest.vasia_author,
         }
-        reverses = {
-            'reverse_follow': reverse(
+        self.authorized_author.post(
+            reverse(
                 'posts:profile_follow',
                 kwargs={'username': FollowViewsTest.post.author.username}
             ),
-            'reverse_unfollow': reverse(
-                'posts:profile_unfollow',
-                kwargs={'username': FollowViewsTest.post.author.username}
-            ),
-        }
-        self.authorized_author.post(
-            reverses['reverse_follow'],
             data=form_data,
             follow=True,
         )
@@ -469,8 +462,17 @@ class FollowViewsTest(TestCase):
             user=form_data['user']).filter(author=form_data['author']).exists()
         self.assertTrue(is_you_follow)
 
+    def test_unfollow(self):
+        """Тест отписки от автора"""
+        form_data = {
+            'user': FollowViewsTest.user_follower,
+            'author': FollowViewsTest.vasia_author,
+        }
         self.authorized_author.post(
-            reverses['reverse_unfollow'],
+            reverse(
+                'posts:profile_unfollow',
+                kwargs={'username': FollowViewsTest.post.author.username}
+            ),
             data=form_data,
             follow=True,
         )
