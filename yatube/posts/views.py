@@ -132,10 +132,8 @@ def add_comment(request, post_id):
 def follow_index(request):
     template = 'posts/follow.html/'
     title = f"Подписки пользователя {request.user.username}"
-    #authors = Follow.objects.filter(user=request.user)
-    #post_list = Post.objects.filter(
-    #    author__in=[author.author for author in authors])
-    post_list = Post.objects.filter(author__following__user = request.user).all()
+    post_list = Post.objects.filter(
+        author__following__user=request.user).all()
     page_obj = add_paginator(post_list, request)
     context = {
         'title': title,
@@ -150,9 +148,6 @@ def profile_follow(request, username):
     if author != request.user:
         is_you_follow = Follow.objects.filter(
             user=request.user).filter(author=author).exists()
-        #authors = Follow.objects.filter(user=request.user)
-        #follow_list = [follow_author.author for follow_author in authors]
-        #if author not in follow_list:
         if not is_you_follow:
             Follow.objects.create(
                 user=request.user,
@@ -164,10 +159,6 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
-    #unfollow = Follow.objects.get(
-    #    user=request.user,
-    #    author=author,
-    #)
     unfollow = get_object_or_404(
         Follow,
         user=request.user,

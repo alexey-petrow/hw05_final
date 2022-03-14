@@ -9,8 +9,8 @@ from django.urls import reverse
 from django import forms
 from django.core.cache import cache
 
-from ..forms import CommentForm, PostForm
 from ..models import Group, Post, Comment, Follow
+from ..urls import app_name
 
 
 User = get_user_model()
@@ -289,7 +289,6 @@ class PostViewsImageTest(TestCase):
             text='Text',
             image=cls.test_image,
         )
-        cls.form = PostForm()
 
     def setUp(self):
         self.authorized_author = Client()
@@ -350,7 +349,7 @@ class PostViewsImageTest(TestCase):
             id=last_post.id,
             text=form_data['text'],
             group=form_data['group'],
-            image='posts/small_2.gif',
+            image=f'{app_name}/{form_data["image"].name}',
         ).exists()
         )
 
@@ -370,7 +369,6 @@ class CommentsViewsTest(TestCase):
             group=cls.group,
             text='Text',
         )
-        cls.form = CommentForm()
 
     def setUp(self):
         self.authorized_author = Client()
@@ -408,11 +406,7 @@ class CommentsViewsTest(TestCase):
         )
         last_comment = Comment.objects.filter(
             post=CommentsViewsTest.post.id).order_by('-created')[0]
-        self.assertTrue(Comment.objects.filter(
-            post=last_comment.post,
-            text=form_data['text'],
-        ).exists()
-        )
+        self.assertEqual(last_comment.text, form_data['text'])
 
     def test_cache(self):
         """Тест корректной работы кеширования, после удаления поста
@@ -452,18 +446,37 @@ class FollowViewsTest(TestCase):
 
     def test_follow(self):
         """Тест подписки и отписки от автора"""
-        new_follow = Follow.objects.create(
-            user=FollowViewsTest.user_follower,
-            author=FollowViewsTest.vasia_author,
+        form_data = {
+            'user': FollowViewsTest.user_follower,
+            'author': FollowViewsTest.vasia_author,
+        }
+        reverses = {
+            'reverse_follow': reverse(
+                'posts:profile_follow',
+                kwargs={'username': FollowViewsTest.post.author.username}
+            ),
+            'reverse_unfollow': reverse(
+                'posts:profile_unfollow',
+                kwargs={'username': FollowViewsTest.post.author.username}
+            ),
+        }
+        self.authorized_author.post(
+            reverses['reverse_follow'],
+            data=form_data,
+            follow=True,
         )
-        authors = Follow.objects.filter(user=FollowViewsTest.user_follower)
-        authors_list = [author.author for author in authors]
-        self.assertIn(FollowViewsTest.vasia_author, authors_list)
+        is_you_follow = Follow.objects.filter(
+            user=form_data['user']).filter(author=form_data['author']).exists()
+        self.assertTrue(is_you_follow)
 
-        new_follow.delete()
-        authors = Follow.objects.filter(user=FollowViewsTest.user_follower)
-        authors_list = [author.author for author in authors]
-        self.assertNotIn(FollowViewsTest.vasia_author, authors_list)
+        self.authorized_author.post(
+            reverses['reverse_unfollow'],
+            data=form_data,
+            follow=True,
+        )
+        is_you_follow = Follow.objects.filter(
+            user=form_data['user']).filter(author=form_data['author']).exists()
+        self.assertFalse(is_you_follow)
 
     def test_follower_has_posts_he_followed(self):
         """Тест: новая запись появляется в ленте тех, кто на него подписан
@@ -477,16 +490,16 @@ class FollowViewsTest(TestCase):
             group=FollowViewsTest.group,
             text='Text2',
         )
-        authors = Follow.objects.filter(user=FollowViewsTest.user_follower)
-        post_list_followed = Post.objects.filter(
-            author__in=[author.author for author in authors])
-        author_posts = Post.objects.filter(author=FollowViewsTest.vasia_author)
-        for post in author_posts:
-            self.assertIn(post, post_list_followed)
+        is_post_in_follow_list = Post.objects.filter(
+            author__following__user=FollowViewsTest.user_follower
+        ).filter(
+            author__following__author=FollowViewsTest.vasia_author
+        ).exists()
+        self.assertTrue(is_post_in_follow_list)
 
-        authors = Follow.objects.filter(user=FollowViewsTest.user_not_follower)
-        post_list_followed = Post.objects.filter(
-            author__in=[author.author for author in authors])
-        author_posts = Post.objects.filter(author=FollowViewsTest.vasia_author)
-        for post in author_posts:
-            self.assertNotIn(post, post_list_followed)
+        is_post_in_follow_list = Post.objects.filter(
+            author__following__user=FollowViewsTest.user_not_follower
+        ).filter(
+            author__following__author=FollowViewsTest.vasia_author
+        ).exists()
+        self.assertFalse(is_post_in_follow_list)
