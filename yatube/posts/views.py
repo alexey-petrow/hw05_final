@@ -38,11 +38,9 @@ def profile(request, username):
     page_obj = add_paginator(post_list, request)
     following = False
     if request.user.is_authenticated:
-        # Тут я не понимаю почему переменная лишняя,
-        # ведь она используется в if
-        is_you_follow = Follow.objects.filter(
-            user=request.user).filter(author=author).exists()
-        if is_you_follow:
+        # я думал с переменной более читабельно
+        if Follow.objects.filter(
+            user=request.user).filter(author=author).exists():
             following = True
         else:
             following = False
