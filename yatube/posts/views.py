@@ -38,13 +38,8 @@ def profile(request, username):
     page_obj = add_paginator(post_list, request)
     following = False
     if request.user.is_authenticated:
-        # Михаил Иванов ревьюер: "Замечание так и не исправлено"
-        # Так я удалил переменную, что теперь не так?
-        if Follow.objects.filter(user=request.user).filter(
-                author=author).exists():
-            following = True
-        else:
-            following = False
+        following = Follow.objects.filter(user=request.user).filter(
+            author=author).exists()
     context = {
         'author': author,
         'user': request.user,
