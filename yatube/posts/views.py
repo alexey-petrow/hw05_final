@@ -39,8 +39,8 @@ def profile(request, username):
     following = False
     if request.user.is_authenticated:
         # я думал с переменной более читабельно
-        if Follow.objects.filter(
-            user=request.user).filter(author=author).exists():
+        if Follow.objects.filter(user=request.user).filter(
+                author=author).exists():
             following = True
         else:
             following = False
