@@ -38,7 +38,8 @@ def profile(request, username):
     page_obj = add_paginator(post_list, request)
     following = False
     if request.user.is_authenticated:
-        # я думал с переменной более читабельно
+        # Михаил Иванов ревьюер: "Замечание так и не исправлено"
+        # Так я удалил переменную, что теперь не так?
         if Follow.objects.filter(user=request.user).filter(
                 author=author).exists():
             following = True
