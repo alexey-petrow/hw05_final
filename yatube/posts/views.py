@@ -9,7 +9,7 @@ from .utils import add_paginator
 def index(request):
     template = 'posts/index.html/'
     title = "Последние обновления на сайте"
-    post_list = Post.objects.all()
+    post_list = Post.objects.select_related('group', 'author').all()
     page_obj = add_paginator(post_list, request)
     context = {
         'title': title,
@@ -21,7 +21,9 @@ def index(request):
 def group_posts(request, slug):
     template = 'posts/group_list.html/'
     group = get_object_or_404(Group, slug=slug)
-    post_list = Post.objects.filter(group=group)
+    post_list = Post.objects.select_related(
+        'group', 'author').filter(
+        group=group)
     page_obj = add_paginator(post_list, request)
     context = {
         'group': group,
@@ -33,8 +35,10 @@ def group_posts(request, slug):
 def profile(request, username):
     template = 'posts/profile.html/'
     author = get_object_or_404(User, username=username)
-    posts_count = Post.objects.filter(author=author).count()
-    post_list = Post.objects.filter(author=author)
+    # posts_count = Post.objects.filter(author=author).count()
+    post_list = Post.objects.select_related('group', 'author').filter(
+        author=author)
+    posts_count = len(post_list)
     page_obj = add_paginator(post_list, request)
     following = False
     if request.user.is_authenticated:
@@ -56,7 +60,8 @@ def post_detail(request, post_id):
     author = post.author
     posts_count = Post.objects.filter(author=author).count()
     form = CommentForm(request.POST or None)
-    post_comments = Comment.objects.filter(post=post_id)
+    post_comments = Comment.objects.filter(post=post_id).select_related(
+        'post', 'author')
     context = {
         'post': post,
         'posts_count': posts_count,
@@ -129,7 +134,7 @@ def follow_index(request):
     template = 'posts/follow.html/'
     title = f"Подписки пользователя {request.user.username}"
     post_list = Post.objects.filter(
-        author__following__user=request.user)
+        author__following__user=request.user).select_related('group', 'author')
     page_obj = add_paginator(post_list, request)
     context = {
         'title': title,
