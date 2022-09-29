@@ -1,3 +1,35 @@
-# hw05_final
+![workflow](https://github.com/p1vosos/hw05_final/actions/workflows/python-app.yml/badge.svg)
+# Yatube
 
-[![CI](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml)
+## Описание проекта
+**Yatube** – Django проект. Представляет собой аналог соц сети с публикацией постов, подписками на авторов постов, регистрацией в качестве автора.
+Реализованы технологии такие как: пользовательские права, регистрация, авторизация, восстановление пароля через email, csrf, пагинация, кэширование, api на DRF.
+
+## Как запустить проект локально в dev-режимe:
+
+- Клонировать репозиторий и перейти в папку с файлом manage.py:
+
+```
+git clone git@github.com:p1vosos/hw05_final.git
+cd yatube/
+```
+
+- Выполнить миграции:
+
+```
+python3 manage.py migrate
+```
+
+- Заполнить базу тестовыми данными:
+
+```
+python3 manage.py loaddata dump.json
+```
+
+## Проект запущен локально и доступен по адресу:
+- http://127.0.0.1:8000/ - главная страница
+- http://127.0.0.1:8000/admin/ - админ зона
+
+## Автор
+
+Петров Алексей <alexeypetrow21@gmail.com>

@@ -79,8 +79,9 @@ class PostURLTests(TestCase):
                 self.assertEqual(response.status_code, response_status)
 
     def test_posts_create_edit_redirect_for_anonim_user(self):
-        """Тест на соответствия адреса после переадресации, ожидаемому, при попытке
-        создания и редактирования поста для неавторизированного пользователя"""
+        """Тест на соответствия адреса после переадресации,
+        ожидаемому, при попытке создания и редактирования
+        поста для неавторизированного пользователя"""
         all_urls_for_redirect = {
             '/create/': '/auth/login/?next=/create/',
             f'/posts/{PostURLTests.post.id}/edit/':
@@ -92,8 +93,8 @@ class PostURLTests(TestCase):
                 self.assertRedirects(response, redirect_adress)
 
     def test_posts_edit_redirect_for_autrorized_user(self):
-        """Тест на соответствия адреса после переадресации, ожидаемому, при попытке
-        редактирования поста для авторизированного пользователя"""
+        """Тест на соответствия адреса после переадресации, ожидаемому,
+        при попытке редактирования поста для авторизированного пользователя"""
         response = self.authorized_user.get(
             f'/posts/{PostURLTests.post.id}/edit/'
         )
